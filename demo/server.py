@@ -10,7 +10,7 @@ sys.path.append(os.getcwd())
 
 from src.models.wrapper import DIETClassifierWrapper
 
-CONFIG_FILE = "../src/config.yml"
+CONFIG_FILE = "./src/config.yml"
 
 wrapper = DIETClassifierWrapper(CONFIG_FILE)
 
@@ -31,7 +31,7 @@ app.add_middleware(
 async def detect(input: str):
     output = wrapper.predict([input])[0]
 
-    del output["intent_ranking"]
+    # del output["intent_ranking"]
 
     response = jsonable_encoder(output)
     return JSONResponse(response)

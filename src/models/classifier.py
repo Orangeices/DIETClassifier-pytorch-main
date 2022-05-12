@@ -11,7 +11,6 @@ from os import path
 import json
 
 
-
 class DIETClassifierConfig(PretrainedConfig):
     def __init__(self, model: str, entities: List[str] = None, intents: List[str] = None):
         super().__init__()
@@ -73,8 +72,23 @@ class DIETClassifier(BertPreTrainedModel):
 
         if not pretrained_model:
             try:
-                # print(self.state_dict().keys())
-                self.load_state_dict(checkpoint)
+                """
+                错误：
+                RuntimeError: Cannot load state dict from checkpoint by error: Error(s) in loading state_dict for DIETClassifier:
+	            Missing key(s) in state_dict: 
+	            "bert.embeddings.position_ids", "bert.embeddings.LayerNorm.weight", "bert.embeddings.LayerNorm.bias", 
+	            ...
+	            Unexpected key(s) in state_dict: 
+	            "cls.predictions.bias", "cls.predictions.transform.dense.weight", "cls.predictions.transform.dense.bias",
+	             "cls.predictions.transform.LayerNorm.gamma", "cls.predictions.transform.LayerNorm.beta",
+	              "cls.predictions.decoder.weight", "cls.seq_relationship.weight", "cls.seq_relationship.bias", 
+	             ...
+	             原因：
+                加载使用模型时和训练模型时的环境不一致,
+                解决方法：
+                在ssd_model.py中加载预训练模型的语句后面，加上一个False就可以了。
+                """
+                self.load_state_dict(checkpoint, False)
             except Exception as ex:
                 raise RuntimeError(f"Cannot load state dict from checkpoint by error: {ex}")
 
@@ -187,8 +201,8 @@ if __name__ == '__main__':
     from src.data_reader.dataset import DIETClassifierDataset
     from transformers import AutoTokenizer
 
-    files = [r"D:\pycharm\DIETClassifier-pytorch-main\dataset\nlu_QnA_converted.yml",
-             r"D:\pycharm\DIETClassifier-pytorch-main\dataset\nlu_converted.yml"]
+    files = [r"../../dataset/nlu_QnA_converted.yml",
+             r"../../dataset/nlu_converted.yml"]
     # tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER")
     tokenizer = AutoTokenizer.from_pretrained(r"F:\BaiduNetdiskDownload\huggingface_models\bert-base-uncased")
 
